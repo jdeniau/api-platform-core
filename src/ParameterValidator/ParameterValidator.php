@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace ApiPlatform\ParameterValidator;
 
+use ApiPlatform\OpenApi\Model\Parameter;
 use ApiPlatform\ParameterValidator\Exception\ValidationException;
 use ApiPlatform\ParameterValidator\Validator\ArrayItems;
 use ApiPlatform\ParameterValidator\Validator\Bounds;
@@ -63,6 +64,10 @@ class ParameterValidator
             }
 
             foreach ($filter->getDescription($resourceClass) as $name => $data) {
+                if (($data['openapi'] ?? null) instanceof Parameter) {
+                    continue;
+                }
+
                 foreach ($this->validators as $validator) {
                     if ($errors = $validator->validate($name, $data, $queryParameters)) {
                         $errorList[] = $errors;
