@@ -339,15 +339,18 @@ final class OpenApiFactory implements OpenApiFactoryInterface
 
                 if (($f = $p->getFilter()) && \is_string($f) && $this->filterLocator->has($f)) {
                     $filter = $this->filterLocator->get($f);
-                    foreach ($filter->getDescription($entityClass) as $name => $description) {
-                        if ($prop = $p->getProperty()) {
-                            $name = str_replace($prop, $key, $name);
+                    // TODO: Taken from https://github.com/api-platform/core/pull/6858 introduced in 4.0.12
+                    if ($d = $filter->getDescription($entityClass)) {
+                        foreach ($d as $name => $description) {
+                            if ($prop = $p->getProperty()) {
+                                $name = str_replace($prop, $key, $name);
+                            }
+
+                            $openapiParameters[] = $this->getFilterParameter($name, $description, $operation->getShortName(), $f);
                         }
 
-                        $openapiParameters[] = $this->getFilterParameter($name, $description, $operation->getShortName(), $f);
+                        continue;
                     }
-
-                    continue;
                 }
 
                 $in = $p instanceof HeaderParameterInterface ? 'header' : 'query';
