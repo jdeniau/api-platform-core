@@ -875,10 +875,16 @@ final class OpenApiFactory implements OpenApiFactoryInterface
 
     private function mergeParameter(Parameter $actual, Parameter $defined): Parameter
     {
+        // TODO taken from https://github.com/api-platform/core/pull/7656 introduced in 4.2
+        // Handle description separately: only override if the new value is non-empty
+        $newDescription = $defined->getDescription();
+        if ('' !== $newDescription && $actual->getDescription() !== $newDescription) {
+            $actual = $actual->withDescription($newDescription);
+        }
+
         foreach ([
             'name',
             'in',
-            'description',
             'required',
             'deprecated',
             'allowEmptyValue',
